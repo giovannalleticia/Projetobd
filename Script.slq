@@ -1,0 +1,94 @@
+create table java_endereço(
+    id_endereco int not null auto_increment,
+    rua varchar(255) not null,
+    numero varchar(10) not null,
+    bairro varchar(45) not null,
+    complemento varchar(255),
+    cep varchar(8) not null,
+    cidade varchar(45) not null,
+    primary key(id_endereco)
+)engine = InnoDB;
+
+create table java_conta(
+    id_conta int not null auto_increment,
+    nome varchar(45) not null,
+    telefone varchar(45) not null,
+    cpf varchar(11) not null,
+    senha varchar(15) not null,
+    data_cadastro date not null,
+    id_endereco int not null,
+    primary key(id_conta),
+    constraint fk_java_conta_id_endereco foreign key(id_endereco) references java_endereço(id_endereco)
+    on delete no action on update no action
+)engine = InnoDB;
+
+create table java_prestador(
+    id_conta int not null,
+    serviço_prestado varchar(45) not null,
+    primary key(id_conta),
+    constraint java_prestador_id_conta foreign key(id_conta) references java_conta(id_conta)
+    on delete no action on update no action
+)engine = InnoDB;
+
+create table java_usuario(
+    id_conta int not null,
+    email varchar(45) not null,
+    primary key(id_conta),
+    constraint java_usuario_id_conta foreign key(id_conta) references java_conta(id_conta)
+    on delete no action on update no action
+)engine = InnoDB;
+
+create table java_locais_atendimento(
+    id_locais_atendimento int not null auto_increment,
+    id_conta int not null,
+    cidade varchar(45) not null,
+    bairro varchar (45) not null,
+    primary key(id_locais_atendimento),
+    constraint fk_java_locais_atendimento_id_conta foreign key(id_conta) references java_prestador(id_conta)
+)engine = InnoDB;
+
+create table java_servico(
+    id_servico int not null auto_increment,
+    nome_do_serviço varchar(45) not null,
+    descricao varchar (45) not null,
+    duracao_estimada varchar(45) not null,
+    preço_base double,
+    id_conta int not null,
+    primary key(id_servico),
+    constraint fk_java_servico_id_conta foreign key(id_conta) references java_prestador(id_conta)
+    on delete no action on update no action
+)engine = InnoDB;
+
+create table java_agendamento(
+    id_agendamento int not null auto_increment,
+    data date not null,
+    status varchar(45) not null,
+    hora varchar(45) not null,
+    id_conta int not null,
+    primary key(id_agendamento),
+    constraint fk_java_agendamento_id_conta foreign key(id_conta) references java_usuario(id_conta)
+    on delete no action on update no action
+)engine = InnoDB;
+
+create table java_pagamento(
+    id_pagamento int not null auto_increment,
+    id_agendamento int not null,
+    valor double not null,
+    forma_pagamento varchar(45) not null,
+    status_pagamento varchar(45) not null,
+    data date not null,
+    primary key(id_pagamento,id_agendamento),
+    constraint fk_java_pagamento_id_agendamento foreign key (id_agendamento) references java_agendamento(id_agendamento)
+    on delete no action on update no action
+)engine = InnoDB;
+
+create table java_avaliacoes(
+    id_avaliacoes int not null auto_increment,
+    nota varchar(45) not null,
+    comentarios varchar (45) not null,
+    data_avaliacao date not null,
+    id_agendamento int not null,
+    primary key(id_avaliacoes),
+    constraint fk_java_avaliacoes_id_agendamento foreign key(id_agendamento) references java_agendamento(id_agendamento)
+    on delete no action on update no action   
+)engine = InnoDB;
