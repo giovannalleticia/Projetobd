@@ -17,7 +17,7 @@ public class ConexaoMySQL {
 
         
         try (Connection connection = DriverManager.getConnection(jdbcUrl, username, password)) {
-            System.out.println("Conexão estabelecida com sucesso!");
+            System.out.println("Conexao estabelecida com sucesso!");
            
             Scanner scanner = new Scanner(System.in);
             int opcao;
@@ -25,12 +25,12 @@ public class ConexaoMySQL {
 
             do {
                 System.out.println("Menu:");
-                System.out.println("1. Inserir Registro (Conta)");
-                System.out.println("2. Alterar Registro (Conta)");
-                System.out.println("3. Excluir Registro (Conta)");
-                System.out.println("4. Listar Registros (Contas)");
+                System.out.println("1. Inserir Registro");
+                System.out.println("2. Alterar Registro");
+                System.out.println("3. Excluir Registro");
+                System.out.println("4. Listar Registros1");
                 System.out.println("5. Sair");
-                System.out.print("Escolha uma opção: ");
+                System.out.print("Escolha uma opçao: ");
                 opcao = scanner.nextInt();
                 scanner.nextLine();
 
@@ -78,7 +78,7 @@ public class ConexaoMySQL {
         String dataCadastro = scanner.nextLine();
         System.out.print("ID do Endereço: ");
         int idEndereco = scanner.nextInt();
-        scanner.nextLine(); // Consumir a nova linha
+        scanner.nextLine();
 
 
         String sql = "INSERT INTO java_conta (nome, telefone, cpf, senha, data_cadastro, id_endereco) VALUES (?, ?, ?, ?, ?, ?)";
@@ -100,7 +100,7 @@ public class ConexaoMySQL {
     public static void alterarRegistro(Connection connection, Scanner scanner) {
         System.out.print("ID do registro a alterar: ");
         int idConta = scanner.nextInt();
-        scanner.nextLine(); // Consumir a nova linha
+        scanner.nextLine();
         System.out.print("Novo Nome: ");
         String nome = scanner.nextLine();
         System.out.print("Novo Telefone: ");
