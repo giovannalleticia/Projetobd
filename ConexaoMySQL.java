@@ -67,7 +67,6 @@ public class ConexaoMySQL {
 
     public static void inserirRegistro(Connection connection, Scanner scanner) {
 
-
         System.out.print("Nome: ");
         String nome = scanner.nextLine();
         System.out.print("Telefone: ");
@@ -78,11 +77,50 @@ public class ConexaoMySQL {
         String senha = scanner.nextLine();
         System.out.print("Data de Cadastro (yyyy-mm-dd): ");
         String dataCadastro = scanner.nextLine();
-        
+
+        //endereço
+        System.out.println("Nome da Rua: ");
+        String nomeDaRua = scanner.nextLine();
+        System.out.println("Número: ");
+        int numero = scanner.nextInt();
+        scanner.nextLine();
+        System.out.println("Bairro: ");
+        String bairro = scanner.nextLine();
+        System.out.println("Complemento: ");
+        String complemento = scanner.nextLine();
+        System.out.println("CEP: ");
+        String cep = scanner.nextLine();
+        System.out.println("Cidade: ");
+        String cidade = scanner.nextLine();
         scanner.nextLine();
 
+        String sqlString = "INSERT INTO java_endereco (rua, numero, bairro, complemento, cep, cidade) VALUES (?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement pstmt = connection.prepareStatement(sqlString, Statement.RETURN_GENERATED_KEYS())) {
+            pstmt.setString(1, nomeDaRua);
+            pstmt.setInt(2, numero);
+            pstmt.setString(3, bairro);
+            pstmt.setString(4, complemento);
+            pstmt.setString(5, cep);
+            pstmt.setString(6, cidade);
+            pstmt.executeUpdate();
 
-        String sql = "INSERT INTO java_conta (nome, telefone, cpf, senha, data_cadastro) VALUES (?, ?, ?, ?, ?)";
+            try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    idEndereco = rs.getInt(1);
+                }
+        }  
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        if (idEndereco == -1) {
+            System.out.println("Erro ao inserir endereço.");
+            return;
+        }
+
+
+        String sql = "INSERT INTO java_conta (nome, telefone, cpf, senha, data_cadastro, idEndereço) VALUES (?, ?, ?, ?, ?, ?)";
+        int idEndereco = -1;
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, nome);
             pstmt.setString(2, telefone);
