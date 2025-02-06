@@ -28,9 +28,9 @@ public class ConexaoMySQL {
                 System.out.println("1. Inserir Registro");
                 System.out.println("2. Alterar Registro");
                 System.out.println("3. Excluir Registro");
-                System.out.println("4. Listar Registros1");
+                System.out.println("4. Listar Registros");
                 System.out.println("5. Sair");
-                System.out.print("Escolha uma opçao: ");
+                System.out.print("Escolha uma opcao: ");
                 opcao = scanner.nextInt();
                 scanner.nextLine();
 
@@ -52,7 +52,7 @@ public class ConexaoMySQL {
                         System.out.println("Encerrando o programa.");
                         break;
                     default:
-                        System.out.println("Opção inválida. Tente novamente.");
+                        System.out.println("Opcao inválida. Tente novamente.");
                         break;
                 }
             } while (opcao != 5);
@@ -66,6 +66,8 @@ public class ConexaoMySQL {
 
 
     public static void inserirRegistro(Connection connection, Scanner scanner) {
+
+
         System.out.print("Nome: ");
         String nome = scanner.nextLine();
         System.out.print("Telefone: ");
@@ -76,19 +78,17 @@ public class ConexaoMySQL {
         String senha = scanner.nextLine();
         System.out.print("Data de Cadastro (yyyy-mm-dd): ");
         String dataCadastro = scanner.nextLine();
-        System.out.print("ID do Endereço: ");
-        int idEndereco = scanner.nextInt();
+        
         scanner.nextLine();
 
 
-        String sql = "INSERT INTO java_conta (nome, telefone, cpf, senha, data_cadastro, id_endereco) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO java_conta (nome, telefone, cpf, senha, data_cadastro) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, nome);
             pstmt.setString(2, telefone);
             pstmt.setString(3, cpf);
             pstmt.setString(4, senha);
             pstmt.setString(5, dataCadastro);
-            pstmt.setInt(6, idEndereco);
             pstmt.executeUpdate();
             System.out.println("Registro inserido com sucesso!");
         } catch (SQLException e) {
