@@ -6,22 +6,17 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Scanner;
 
-
 public class ConexaoMySQL {
-
 
     public static void main(String[] args) {
         String jdbcUrl = "jdbc:mysql://wagnerweinert.com.br:3306/tads24_giovanna";
         String username = "tads24_giovanna";
         String password = "tads24_giovanna";
 
-        
         try (Connection connection = DriverManager.getConnection(jdbcUrl, username, password)) {
             System.out.println("Conexao estabelecida com sucesso!");
-           
             Scanner scanner = new Scanner(System.in);
             int opcao;
-
 
             do {
                 System.out.println("Menu:");
@@ -33,7 +28,6 @@ public class ConexaoMySQL {
                 System.out.print("Escolha uma opcao: ");
                 opcao = scanner.nextInt();
                 scanner.nextLine();
-
 
                 switch (opcao) {
                     case 1:
@@ -52,11 +46,10 @@ public class ConexaoMySQL {
                         System.out.println("Encerrando o programa.");
                         break;
                     default:
-                        System.out.println("Opcao inválida. Tente novamente.");
+                        System.out.println("Opcao invalida. Tente novamente.");
                         break;
                 }
             } while (opcao != 5);
-
 
             scanner.close();
         } catch (SQLException e) {
@@ -64,8 +57,8 @@ public class ConexaoMySQL {
         }
     }
 
-
     public static void inserirRegistro(Connection connection, Scanner scanner) {
+        int idEndereco = -1;
 
         System.out.print("Nome: ");
         String nome = scanner.nextLine();
@@ -78,10 +71,10 @@ public class ConexaoMySQL {
         System.out.print("Data de Cadastro (yyyy-mm-dd): ");
         String dataCadastro = scanner.nextLine();
 
-        //endereço
+
         System.out.println("Nome da Rua: ");
         String nomeDaRua = scanner.nextLine();
-        System.out.println("Número: ");
+        System.out.println("Numero: ");
         int numero = scanner.nextInt();
         scanner.nextLine();
         System.out.println("Bairro: ");
@@ -92,10 +85,9 @@ public class ConexaoMySQL {
         String cep = scanner.nextLine();
         System.out.println("Cidade: ");
         String cidade = scanner.nextLine();
-        scanner.nextLine();
 
-        String sqlString = "INSERT INTO java_endereco (rua, numero, bairro, complemento, cep, cidade) VALUES (?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement pstmt = connection.prepareStatement(sqlString, Statement.RETURN_GENERATED_KEYS())) {
+        String sqlEndereco = "INSERT INTO java_endereco (rua, numero, bairro, complemento, cep, cidade) VALUES (?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement pstmt = connection.prepareStatement(sqlEndereco, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setString(1, nomeDaRua);
             pstmt.setInt(2, numero);
             pstmt.setString(3, bairro);
@@ -108,25 +100,24 @@ public class ConexaoMySQL {
                 if (rs.next()) {
                     idEndereco = rs.getInt(1);
                 }
-        }  
-        catch (SQLException e) {
+            }
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 
         if (idEndereco == -1) {
-            System.out.println("Erro ao inserir endereço.");
+            System.out.println("Erro ao inserir endereco.");
             return;
         }
 
-
-        String sql = "INSERT INTO java_conta (nome, telefone, cpf, senha, data_cadastro, idEndereço) VALUES (?, ?, ?, ?, ?, ?)";
-        int idEndereco = -1;
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        String sqlConta = "INSERT INTO java_conta (nome, telefone, cpf, senha, data_cadastro, idEndereço) VALUES (?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement pstmt = connection.prepareStatement(sqlConta)) {
             pstmt.setString(1, nome);
             pstmt.setString(2, telefone);
             pstmt.setString(3, cpf);
             pstmt.setString(4, senha);
             pstmt.setString(5, dataCadastro);
+            pstmt.setInt(6, idEndereco);
             pstmt.executeUpdate();
             System.out.println("Registro inserido com sucesso!");
         } catch (SQLException e) {
@@ -134,11 +125,12 @@ public class ConexaoMySQL {
         }
     }
 
-
     public static void alterarRegistro(Connection connection, Scanner scanner) {
         System.out.print("ID do registro a alterar: ");
         int idConta = scanner.nextInt();
         scanner.nextLine();
+    
+        
         System.out.print("Novo Nome: ");
         String nome = scanner.nextLine();
         System.out.print("Novo Telefone: ");
@@ -149,21 +141,60 @@ public class ConexaoMySQL {
         String senha = scanner.nextLine();
         System.out.print("Nova Data de Cadastro (yyyy-mm-dd): ");
         String dataCadastro = scanner.nextLine();
-        System.out.print("Novo ID do Endereço: ");
-        int idEndereco = scanner.nextInt();
+    
+
+        System.out.println("Novo Nome da Rua: ");
+        String nomeDaRua = scanner.nextLine();
+        System.out.println("Novo Numero: ");
+        int numero = scanner.nextInt();
         scanner.nextLine();
+        System.out.println("Novo Bairro: ");
+        String bairro = scanner.nextLine();
+        System.out.println("Novo Complemento: ");
+        String complemento = scanner.nextLine();
+        System.out.println("Novo CEP: ");
+        String cep = scanner.nextLine();
+        System.out.println("Nova Cidade: ");
+        String cidade = scanner.nextLine();
+    
 
+        int idEndereco = -1;
+        String sqlEndereco = "UPDATE java_endereco SET rua = ?, numero = ?, bairro = ?, complemento = ?, cep = ?, cidade = ? WHERE id_endereco = (SELECT idEndereço FROM java_conta WHERE id_conta = ?)";
+        try (PreparedStatement pstmtEndereco = connection.prepareStatement(sqlEndereco, Statement.RETURN_GENERATED_KEYS)) {
+            pstmtEndereco.setString(1, nomeDaRua);
+            pstmtEndereco.setInt(2, numero);
+            pstmtEndereco.setString(3, bairro);
+            pstmtEndereco.setString(4, complemento);
+            pstmtEndereco.setString(5, cep);
+            pstmtEndereco.setString(6, cidade);
+            pstmtEndereco.setInt(7, idConta);
+            pstmtEndereco.executeUpdate();
+    
+            try (ResultSet rs = pstmtEndereco.getGeneratedKeys()) {
+                if (rs.next()) {
+                    idEndereco = rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    
+        if (idEndereco == -1) {
+            System.out.println("Erro ao atualizar endereco.");
+            return;
+        }
+    
 
-        String sql = "UPDATE java_conta SET nome = ?, telefone = ?, cpf = ?, senha = ?, data_cadastro = ?, id_endereco = ? WHERE id_conta = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setString(1, nome);
-            pstmt.setString(2, telefone);
-            pstmt.setString(3, cpf);
-            pstmt.setString(4, senha);
-            pstmt.setString(5, dataCadastro);
-            pstmt.setInt(6, idEndereco);
-            pstmt.setInt(7, idConta);
-            int rowsUpdated = pstmt.executeUpdate();
+        String sqlConta = "UPDATE java_conta SET nome = ?, telefone = ?, cpf = ?, senha = ?, data_cadastro = ?, idEndereço = ? WHERE id_conta = ?";
+        try (PreparedStatement pstmtConta = connection.prepareStatement(sqlConta)) {
+            pstmtConta.setString(1, nome);
+            pstmtConta.setString(2, telefone);
+            pstmtConta.setString(3, cpf);
+            pstmtConta.setString(4, senha);
+            pstmtConta.setString(5, dataCadastro);
+            pstmtConta.setInt(6, idEndereco);
+            pstmtConta.setInt(7, idConta);
+            int rowsUpdated = pstmtConta.executeUpdate();
             if (rowsUpdated > 0) {
                 System.out.println("Registro atualizado com sucesso!");
             } else {
@@ -174,19 +205,17 @@ public class ConexaoMySQL {
         }
     }
 
-
     public static void excluirRegistro(Connection connection, Scanner scanner) {
         System.out.print("ID do registro a excluir: ");
         int idConta = scanner.nextInt();
         scanner.nextLine();
-
 
         String sql = "DELETE FROM java_conta WHERE id_conta = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setInt(1, idConta);
             int rowsDeleted = pstmt.executeUpdate();
             if (rowsDeleted > 0) {
-                System.out.println("Registro excluído com sucesso!");
+                System.out.println("Registro excluido com sucesso!");
             } else {
                 System.out.println("Nenhum registro encontrado com o ID fornecido.");
             }
@@ -194,7 +223,6 @@ public class ConexaoMySQL {
             e.printStackTrace();
         }
     }
-
 
     public static void listarRegistros(Connection connection) {
         String sql = "SELECT id_conta, nome, telefone, cpf FROM java_conta";
@@ -212,5 +240,4 @@ public class ConexaoMySQL {
         }
     }
 }
-
 
