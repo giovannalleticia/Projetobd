@@ -126,9 +126,8 @@ public class ConexaoMySQL {
     }
 
     public static void alterarRegistro(Connection connection, Scanner scanner) {
-        System.out.print("Qual é o CPF da conta que deseja alterar: ");
-        int alterarCPF = scanner.nextInt();
-        scanner.nextLine();
+        System.out.print("Qual o CPF da conta que deseja alterar: ");
+        String alterarCpf = scanner.nextLine();
     
         
         System.out.print("Novo Nome: ");
@@ -158,44 +157,40 @@ public class ConexaoMySQL {
         String cidade = scanner.nextLine();
     
 
-        int idEndereco = -1;
         String sqlEndereco = "UPDATE java_endereco SET rua = ?, numero = ?, bairro = ?, complemento = ?, cep = ?, cidade = ? WHERE id_endereco = (SELECT id_endereco FROM java_conta WHERE cpf = ?)";
-        try (PreparedStatement pstmtEndereco = connection.prepareStatement(sqlEndereco, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement pstmtEndereco = connection.prepareStatement(sqlEndereco)) {
             pstmtEndereco.setString(1, nomeDaRua);
             pstmtEndereco.setInt(2, numero);
             pstmtEndereco.setString(3, bairro);
             pstmtEndereco.setString(4, complemento);
             pstmtEndereco.setString(5, cep);
             pstmtEndereco.setString(6, cidade);
-            pstmtEndereco.setInt(7, alterarCPF);
+            pstmtEndereco.setString(7, alterarCpf);
             pstmtEndereco.executeUpdate();
     
-            try (ResultSet rs = pstmtEndereco.getGeneratedKeys()) {
-                if (rs.next()) {
-                    idEndereco = rs.getInt(1);
-                }
-            }
+            int ColunasNovas = pstmtEndereco.executeUpdate();
+        
+        if (ColunasNovas == 0) {
+            System.out.println("Erro ao atualizar endereço (CPF não encontrado ou sem vínculo)");
+            return;
+        }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    
-        if (idEndereco == -1) {
-            System.out.println("Erro ao atualizar endereco.");
-            return;
-        }
+
     
 
-        String sqlConta = "UPDATE java_conta SET nome = ?, telefone = ?, cpf = ?, senha = ?, data_cadastro = ?, id_endereco = ? WHERE cpf = ?";
+        String sqlConta = "UPDATE java_conta SET nome = ?, telefone = ?, cpf = ?, senha = ?, data_cadastro = ? WHERE cpf = ?";
         try (PreparedStatement pstmtConta = connection.prepareStatement(sqlConta)) {
             pstmtConta.setString(1, nome);
             pstmtConta.setString(2, telefone);
             pstmtConta.setString(3, cpf);
             pstmtConta.setString(4, senha);
             pstmtConta.setString(5, dataCadastro);
-            pstmtConta.setInt(6, idEndereco);
-            pstmtConta.setInt(7, alterarCPF);
-            int rowsUpdated = pstmtConta.executeUpdate();
-            if (rowsUpdated > 0) {
+            pstmtConta.setString(6, alterarCpf);
+
+            int colunasAtulizadas = pstmtConta.executeUpdate();
+            if (colunasAtulizadas > 0) {
                 System.out.println("Registro atualizado com sucesso!");
             } else {
                 System.out.println("Nenhum registro encontrado com o ID fornecido.");
@@ -207,14 +202,14 @@ public class ConexaoMySQL {
 
     public static void excluirRegistro(Connection connection, Scanner scanner) {
         System.out.print("Digite o CPF da conta que deseja excluir: ");
-        int alterarCPF = scanner.nextInt();
-        scanner.nextLine();
+        String alterarCpf = scanner.nextLine();
+
 
         String sql = "DELETE FROM java_conta WHERE cpf = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, alterarCPF);
-            int rowsDeleted = pstmt.executeUpdate();
-            if (rowsDeleted > 0) {
+            pstmt.setString(1, alterarCpf);
+            int colunasDeletadas = pstmt.executeUpdate();
+            if (colunasDeletadas > 0) {
                 System.out.println("Registro excluido com sucesso!");
             } else {
                 System.out.println("Nenhum registro encontrado com o ID fornecido.");
