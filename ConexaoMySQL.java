@@ -171,7 +171,7 @@ public class ConexaoMySQL {
             int ColunasNovas = pstmtEndereco.executeUpdate();
         
         if (ColunasNovas == 0) {
-            System.out.println("Erro ao atualizar endereço (CPF não encontrado ou sem vínculo)");
+            System.out.println("Erro ao atualizar endereço (CPF nao encontrado ou sem vinculo)");
             return;
         }
         } catch (SQLException e) {
