@@ -110,7 +110,7 @@ public class ConexaoMySQL {
             return;
         }
 
-        String sqlConta = "INSERT INTO java_conta (nome, telefone, cpf, senha, data_cadastro, idEndereço) VALUES (?, ?, ?, ?, ?, ?)";
+        String sqlConta = "INSERT INTO java_conta (nome, telefone, cpf, senha, data_cadastro, id_endereco) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(sqlConta)) {
             pstmt.setString(1, nome);
             pstmt.setString(2, telefone);
@@ -126,8 +126,8 @@ public class ConexaoMySQL {
     }
 
     public static void alterarRegistro(Connection connection, Scanner scanner) {
-        System.out.print("ID do registro a alterar: ");
-        int idConta = scanner.nextInt();
+        System.out.print("Qual é o CPF da conta que deseja alterar: ");
+        int alterarCPF = scanner.nextInt();
         scanner.nextLine();
     
         
@@ -159,7 +159,7 @@ public class ConexaoMySQL {
     
 
         int idEndereco = -1;
-        String sqlEndereco = "UPDATE java_endereco SET rua = ?, numero = ?, bairro = ?, complemento = ?, cep = ?, cidade = ? WHERE id_endereco = (SELECT idEndereço FROM java_conta WHERE id_conta = ?)";
+        String sqlEndereco = "UPDATE java_endereco SET rua = ?, numero = ?, bairro = ?, complemento = ?, cep = ?, cidade = ? WHERE id_endereco = (SELECT id_endereco FROM java_conta WHERE cpf = ?)";
         try (PreparedStatement pstmtEndereco = connection.prepareStatement(sqlEndereco, Statement.RETURN_GENERATED_KEYS)) {
             pstmtEndereco.setString(1, nomeDaRua);
             pstmtEndereco.setInt(2, numero);
@@ -167,7 +167,7 @@ public class ConexaoMySQL {
             pstmtEndereco.setString(4, complemento);
             pstmtEndereco.setString(5, cep);
             pstmtEndereco.setString(6, cidade);
-            pstmtEndereco.setInt(7, idConta);
+            pstmtEndereco.setInt(7, alterarCPF);
             pstmtEndereco.executeUpdate();
     
             try (ResultSet rs = pstmtEndereco.getGeneratedKeys()) {
@@ -185,7 +185,7 @@ public class ConexaoMySQL {
         }
     
 
-        String sqlConta = "UPDATE java_conta SET nome = ?, telefone = ?, cpf = ?, senha = ?, data_cadastro = ?, idEndereço = ? WHERE id_conta = ?";
+        String sqlConta = "UPDATE java_conta SET nome = ?, telefone = ?, cpf = ?, senha = ?, data_cadastro = ?, id_endereco = ? WHERE cpf = ?";
         try (PreparedStatement pstmtConta = connection.prepareStatement(sqlConta)) {
             pstmtConta.setString(1, nome);
             pstmtConta.setString(2, telefone);
@@ -193,7 +193,7 @@ public class ConexaoMySQL {
             pstmtConta.setString(4, senha);
             pstmtConta.setString(5, dataCadastro);
             pstmtConta.setInt(6, idEndereco);
-            pstmtConta.setInt(7, idConta);
+            pstmtConta.setInt(7, alterarCPF);
             int rowsUpdated = pstmtConta.executeUpdate();
             if (rowsUpdated > 0) {
                 System.out.println("Registro atualizado com sucesso!");
@@ -206,13 +206,13 @@ public class ConexaoMySQL {
     }
 
     public static void excluirRegistro(Connection connection, Scanner scanner) {
-        System.out.print("ID do registro a excluir: ");
-        int idConta = scanner.nextInt();
+        System.out.print("Digite o CPF da conta que deseja excluir: ");
+        int alterarCPF = scanner.nextInt();
         scanner.nextLine();
 
-        String sql = "DELETE FROM java_conta WHERE id_conta = ?";
+        String sql = "DELETE FROM java_conta WHERE cpf = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, idConta);
+            pstmt.setInt(1, alterarCPF);
             int rowsDeleted = pstmt.executeUpdate();
             if (rowsDeleted > 0) {
                 System.out.println("Registro excluido com sucesso!");
